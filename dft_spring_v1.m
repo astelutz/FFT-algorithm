@@ -13,26 +13,32 @@ dt = abs(t(1)-t(2));
 n = 2; % number of wave modes to sweep for
 C(n,1) = zeros; % establishes a set of matrices for coefficients Cn
 D(n,1) = zeros;
-A(n,1) = zeros;
-G(n,1) = zeros; % establishes a constant for an optional exponential
+A(n,1) = zeros; % establishes a constant for an optional exponential
 w(n,1) = zeros;
-%f = f - sum(f)/sz; subtracts the average of f from f to emphasize peaks
+g(T,1) = zeros;
+%f = f - sum(f)/sz; %subtracts the average of f from f to emphasize peaks
 
 %% Fourier Transform
 C0 = (2/T) * sum(f);
 for m = 1:n
-    w(m,1) = m * (2*pi)/T;
-    for j = 1:sz
-        C(m) = C(m) + (2/T) * f(j) * cos(w(m,1)*t(j)) * dt;
-        Cn(j,m) = C(m);
-        disp(C(m))
-        D(m) = D(m) + (2/T) * f(j) * sin(w(m,1)*t(j)) * dt;
-        Dn(j,m) = C(m);
-        A(m) = sqrt((C(m)^2)+(D(m)^2));
-        G(m) = G(m) + (2/T) * f(j) * exp(1i*w(m,1)*t(j)) * dt;
+    w(m,1) = m * (2*pi)/T; % omega
+    for j = 1:T
+        C(m) = C(m) + (2/T) * f(j) * cos((w(m)*(j-1))); % C coefficient
+        D(m) = D(m) + (2/T) * f(j) * sin(w(m)*(j-1)); % D coefficient
+        A(m) = A(m) + (2/T) * f(j) * exp(1i*w(m)*(j-1)); % exponential
+        g(j,1) = C0 + C(m) * cos(w(m)*(j-1)*T) + D(m) * sin(w(m)*(j-1)*T);
     end
 end
+
 
 %% Results
 disp('C coefficients')
 disp(C)
+disp('D coefficients')
+disp(D)
+
+figure(1)
+plot(g)
+
+figure(2)
+plot(f)
